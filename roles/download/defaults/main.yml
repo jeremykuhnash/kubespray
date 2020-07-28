@@ -51,7 +51,7 @@ image_arch: "{{host_architecture | default('amd64')}}"
 # Versions
 kube_version: v1.18.5
 kubeadm_version: "{{ kube_version }}"
-etcd_version: v3.3.12
+etcd_version: v3.4.3
 
 # gcr and kubernetes image repo define
 gcr_image_repo: "gcr.io"
@@ -65,7 +65,7 @@ quay_image_repo: "quay.io"
 
 # TODO(mattymo): Move calico versions to roles/network_plugins/calico/defaults
 # after migration to container download
-calico_version: "v3.15.0"
+calico_version: "v3.15.1"
 calico_ctl_version: "{{ calico_version }}"
 calico_cni_version: "{{ calico_version }}"
 calico_policy_version: "{{ calico_version }}"
@@ -79,10 +79,10 @@ cni_version: "v0.8.6"
 weave_version: 2.6.5
 pod_infra_version: "3.2"
 contiv_version: 1.2.1
-cilium_version: "v1.8.0"
+cilium_version: "v1.8.1"
 kube_ovn_version: "v1.2.1"
 kube_router_version: "v1.0.0"
-multus_version: "v3.4.2"
+multus_version: "v3.6"
 
 # Get kubernetes major version (i.e. 1.17.4 => 1.17)
 kube_major_version: "{{ kube_version | regex_replace('^v([0-9])+\\.([0-9]+)\\.[0-9]+', 'v\\1.\\2') }}"
@@ -376,29 +376,26 @@ etcd_binary_checksums:
   # Etcd does not have arm32 builds at the moment, having some dummy value is
   # required to avoid "no attribute" error
   arm: 0
-  arm64: 170b848ac1a071fe7d495d404a868a2c0090750b2944f8a260ef1c6125b2b4f4
-  amd64: dc5d82df095dae0a2970e4d870b6929590689dd707ae3d33e7b86da0f7f211b6
+  arm64: 01bd849ad99693600bd59db8d0e66ac64aac1e3801900665c31bd393972e3554
+  amd64: 6c642b723a86941b99753dff6c00b26d3b033209b15ee33325dc8e7f4cd68f07
 cni_binary_checksums:
   arm: 28e61b5847265135dc1ca397bf94322ecce4acab5c79cc7d360ca3f6a655bdb7
   arm64: 43fbf750c5eccb10accffeeb092693c32b236fb25d919cf058c91a677822c999
   amd64: 994fbfcdbb2eedcfa87e48d8edb9bb365f4e2747a7e47658482556c12fd9b2f5
 calicoctl_binary_checksums:
   arm:
-    v3.15.0: 0
+    v3.15.1: 0
     v3.14.1: 0
-    v3.14.0: 0
     v3.13.3: 0
     v3.11.1: 0
   amd64:
-    v3.15.0: 4600d5d7f08ed9cf479fc8fa87518dbbca32a473d0a4a212cfecb610c18216aa
+    v3.15.1: 0aa333986e221e6fadb74fb3dbed327fe016790a8c09e0092c8b75d5f77a843a
     v3.14.1: 5fe8a7b00a45cf48879eff42b08dcdb85cf0121f3720ac8cbd06566aaa385667
-    v3.14.0: 4e38c7e81653faf3659b0afddabde4dff736bb1b4cc59ebe238907a9641816a7
     v3.13.3: 570539d436df51bb349bb1a8c6b200a3a6f20803a9d391aa2c5cf19a70a083d4
     v3.11.1: 045fdbfdb30789194c499ba17c8eac6d1704fe20d05e3c10027eb570767386db
   arm64:
-    v3.15.0: 9b3d000801987599bee58e0dc4906d5cde87dc9dc4c9b410097a9b1c19e916ba
+    v3.15.1: 275dc0fa6ce924cd1ff6c2011bb59a62a618350ef0d0549e65f7aa53058d2c57
     v3.14.1: 326da28cb726988029f70fbf3d4de424a4edd9949fd435fad81f2203c93e4c36
-    v3.14.0: 14272da8dbb82c0f823fbb50a88d4815513dfafa20a7e33f635a8068ae5b2db6
     v3.13.3: 0c47acd6d200ba1f8348b389cd7a54771542158fef657afc633a30ddad97e272
     v3.11.1: 770e0fce9acf1927726d64a885f8350d44a3fcbf248017d0aceec58bd41fa1b8
 
@@ -677,7 +674,7 @@ downloads:
     - k8s-cluster
 
   cilium:
-    enabled: "{{ kube_network_plugin == 'cilium' }}"
+    enabled: "{{ kube_network_plugin == 'cilium' or cilium_deploy_additionally | default(false) | bool }}"
     container: true
     repo: "{{ cilium_image_repo }}"
     tag: "{{ cilium_image_tag }}"
@@ -686,7 +683,7 @@ downloads:
     - k8s-cluster
 
   cilium_init:
-    enabled: "{{ kube_network_plugin == 'cilium' }}"
+    enabled: "{{ kube_network_plugin == 'cilium' or cilium_deploy_additionally | default(false) | bool }}"
     container: true
     repo: "{{ cilium_init_image_repo }}"
     tag: "{{ cilium_init_image_tag }}"
@@ -695,7 +692,7 @@ downloads:
     - k8s-cluster
 
   cilium_operator:
-    enabled: "{{ kube_network_plugin == 'cilium' }}"
+    enabled: "{{ kube_network_plugin == 'cilium' or cilium_deploy_additionally | default(false) | bool }}"
     container: true
     repo: "{{ cilium_operator_image_repo }}"
     tag: "{{ cilium_operator_image_tag }}"
